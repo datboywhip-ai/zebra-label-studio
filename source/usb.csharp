@@ -1,0 +1,51 @@
+using System;
+using System.IO;
+using System.Text;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using Microsoft.Win32.SafeHandles;
+public class ZebraUsbDevice { public string name; public string devicePath; public bool isValid=true; public bool isDefault=false; public string transport="usb"; public string identity; public int portStatus=-1; public string probeError; }
+public static class ZebraUsb {
+ [StructLayout(LayoutKind.Sequential)] struct InterfaceData {public int cbSize;public Guid classGuid;public int flags;public IntPtr reserved;}
+ [DllImport("setupapi.dll",SetLastError=true,CharSet=CharSet.Unicode)] static extern IntPtr SetupDiGetClassDevs(ref Guid g,IntPtr e,IntPtr p,uint flags);
+ [DllImport("setupapi.dll",SetLastError=true)] static extern bool SetupDiEnumDeviceInterfaces(IntPtr h,IntPtr d,ref Guid g,uint index,ref InterfaceData data);
+ [DllImport("setupapi.dll",EntryPoint="SetupDiGetDeviceInterfaceDetailW",SetLastError=true,CharSet=CharSet.Unicode)] static extern bool SetupDiGetDeviceInterfaceDetail(IntPtr h,ref InterfaceData data,IntPtr detail,uint size,out uint needed,IntPtr devinfo);
+ [DllImport("setupapi.dll")] static extern bool SetupDiDestroyDeviceInfoList(IntPtr h);
+ [DllImport("kernel32.dll",EntryPoint="CreateFileW",SetLastError=true,CharSet=CharSet.Unicode)] static extern SafeFileHandle CreateFile(string path,uint access,uint share,IntPtr security,uint creation,uint flags,IntPtr template);
+ [DllImport("kernel32.dll",SetLastError=true)] static extern bool WriteFile(SafeFileHandle h,IntPtr data,uint count,out uint written,IntPtr overlap);
+ [DllImport("kernel32.dll",SetLastError=true)] static extern bool DeviceIoControl(SafeFileHandle h,uint code,IntPtr input,uint inputSize,byte[] output,uint outputSize,out uint actual,IntPtr overlap);
+ static void Inspect(ZebraUsbDevice d) {try{using(var h=CreateFile(d.devicePath,0xc0000000,3,IntPtr.Zero,3,0,IntPtr.Zero)){if(h.IsInvalid)throw new Win32Exception(Marshal.GetLastWin32Error());uint actual;var id=new byte[4094];if(DeviceIoControl(h,0x220034,IntPtr.Zero,0,id,(uint)id.Length,out actual,IntPtr.Zero)&&actual>2)d.identity=Encoding.ASCII.GetString(id,2,(int)actual-2).TrimEnd('\0','\r','\n');var status=new byte[4];if(DeviceIoControl(h,0x220030,IntPtr.Zero,0,status,4,out actual,IntPtr.Zero)&&actual>0)d.portStatus=status[0];}}catch(Exception e){d.probeError=e.Message;}}
+ public static ZebraUsbDevice[] List() {
+  Guid g=new Guid("28D78FAD-5A12-11D1-AE5B-0000F803A8C2");IntPtr h=SetupDiGetClassDevs(ref g,IntPtr.Zero,IntPtr.Zero,0x12);
+  if(h==new IntPtr(-1))throw new Win32Exception(Marshal.GetLastWin32Error());var result=new List<ZebraUsbDevice>();
+  try{for(uint i=0;;i++){var d=new InterfaceData();d.cbSize=Marshal.SizeOf(typeof(InterfaceData));if(!SetupDiEnumDeviceInterfaces(h,IntPtr.Zero,ref g,i,ref d)){int err=Marshal.GetLastWin32Error();if(err==259)break;throw new Win32Exception(err);}
+   uint needed;SetupDiGetDeviceInterfaceDetail(h,ref d,IntPtr.Zero,0,out needed,IntPtr.Zero);if(needed<6||needed>65536)continue;IntPtr p=Marshal.AllocHGlobal((int)needed);
+   try{Marshal.WriteInt32(p,IntPtr.Size==8?8:6);if(!SetupDiGetDeviceInterfaceDetail(h,ref d,p,needed,out needed,IntPtr.Zero))throw new Win32Exception(Marshal.GetLastWin32Error());string device=Marshal.PtrToStringUni(IntPtr.Add(p,4));
+    // Only USB printer interfaces belonging to Zebra's registered vendor id.
+    if(device!=null&&device.IndexOf("vid_0a5f",StringComparison.OrdinalIgnoreCase)>=0){string key;using(var sha=SHA256.Create())key=BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(device))).Replace("-","").Substring(0,8);var printer=new ZebraUsbDevice{name="Zebra USB direct - "+key,devicePath=device};Inspect(printer);result.Add(printer);}
+   }finally{Marshal.FreeHGlobal(p);}
+  }}finally{SetupDiDestroyDeviceInfoList(h);}return result.ToArray();
+ }
+ public static int Send(string selectedName,string file) {
+  ZebraUsbDevice device=null;foreach(var d in List())if(d.name==selectedName)device=d;if(device==null)throw new IOException("Zebra USB device is no longer connected");
+  using(var h=CreateFile(device.devicePath,0x40000000,3,IntPtr.Zero,3,0,IntPtr.Zero)){
+   if(h.IsInvalid)throw new Win32Exception(Marshal.GetLastWin32Error());byte[] b=File.ReadAllBytes(file);IntPtr p=Marshal.AllocHGlobal(b.Length);
+   try{Marshal.Copy(b,0,p,b.Length);int offset=0;while(offset<b.Length){uint written;uint count=(uint)Math.Min(16384,b.Length-offset);if(!WriteFile(h,IntPtr.Add(p,offset),count,out written,IntPtr.Zero))throw new Win32Exception(Marshal.GetLastWin32Error());if(written==0)throw new IOException("USB printer accepted no data");offset+=(int)written;}return offset;}finally{Marshal.FreeHGlobal(p);}
+  }
+ }
+ public static string HostStatus(string selectedName) {return Query(selectedName,"~HS\r\n");}
+ public static string HostInfo(string selectedName) {return Query(selectedName,"~HI\r\n");}
+ public static string Configuration(string selectedName) {return Query(selectedName,"^XA^HH^XZ\r\n");}
+ static string Query(string selectedName,string query) {
+  ZebraUsbDevice device=null;foreach(var d in List())if(d.name==selectedName)device=d;if(device==null)throw new IOException("Zebra USB device is no longer connected");
+  using(var handle=CreateFile(device.devicePath,0xc0000000,3,IntPtr.Zero,3,0x40000000,IntPtr.Zero)){
+   if(handle.IsInvalid)throw new Win32Exception(Marshal.GetLastWin32Error());
+   using(var stream=new FileStream(handle,FileAccess.ReadWrite,4096,true)){
+    byte[] command=Encoding.ASCII.GetBytes(query);var write=stream.WriteAsync(command,0,command.Length);if(!write.Wait(3000))throw new IOException("Status query write timed out");
+    byte[] reply=new byte[4096];var read=stream.ReadAsync(reply,0,reply.Length);if(!read.Wait(2500))return "No ZPL status response within 2.5 seconds";return Encoding.ASCII.GetString(reply,0,read.Result);
+   }
+  }
+ }
+}

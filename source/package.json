@@ -1,0 +1,23 @@
+{
+  "name": "zebra-label-studio",
+  "productName": "Zebra Label Studio",
+  "version": "1.0.0",
+  "description": "Local label designer, ZPL print bridge and MCP server for the Zebra ZP 505",
+  "main": "main.cjs",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "node build.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "package": "node package.cjs"
+  },
+  "dependencies": {
+    "jsbarcode": "3.12.1",
+    "pdfjs-dist": "5.4.624",
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "electron": "45.2.3",
+    "esbuild": "^0.25.0"
+  }
+}
