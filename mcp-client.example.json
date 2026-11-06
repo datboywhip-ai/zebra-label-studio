@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "zebra_labels": {
+      "command": "C:/path/to/zebra-label-studio/desktop/Zebra Label Studio.exe",
+      "args": ["C:/path/to/zebra-label-studio/desktop/resources/app/mcp.cjs"],
+      "env": {
+        "ELECTRON_RUN_AS_NODE": "1",
+        "ZEBRA_STUDIO_DATA": "C:/path/to/zebra-label-studio/data",
+        "ZEBRA_STUDIO_APP": "C:/path/to/zebra-label-studio/desktop/Zebra Label Studio.exe"
+      }
+    }
+  }
+}

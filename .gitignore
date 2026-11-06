@@ -1,0 +1,15 @@
+/desktop/
+/data/
+/app/
+**/node_modules/
+/source/ui/bundle.js
+/source/ui/bundle.js.LEGAL.txt
+/source/ui/vendor/
+/source/ui/icon.png
+/source/ui/icon.ico
+*.log
+*.zip
+*.sha256
+.env
+.env.*
+!.env.example
