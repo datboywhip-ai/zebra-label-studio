@@ -1,0 +1,81 @@
+{
+  "id": "shipping",
+  "name": "Shipping · 4 × 6",
+  "widthMm": 101.6,
+  "heightMm": 152.4,
+  "dpi": 203,
+  "objects": [
+    {
+      "id": "from",
+      "type": "text",
+      "x": 6,
+      "y": 6,
+      "w": 89,
+      "h": 21,
+      "fontSize": 3,
+      "text": "FROM\nYour Business\n123 Example Street\nChicago, IL 60601"
+    },
+    {
+      "id": "rule",
+      "type": "line",
+      "x": 6,
+      "y": 31,
+      "w": 89,
+      "h": 0.4,
+      "strokeWidth": 0.4
+    },
+    {
+      "id": "ship",
+      "type": "text",
+      "x": 6,
+      "y": 38,
+      "w": 89,
+      "h": 7,
+      "fontSize": 3,
+      "text": "SHIP TO",
+      "bold": true
+    },
+    {
+      "id": "to",
+      "type": "text",
+      "x": 6,
+      "y": 49,
+      "w": 89,
+      "h": 33,
+      "fontSize": 5,
+      "text": "{{name}}\n{{address}}\n{{city}}",
+      "bold": true
+    },
+    {
+      "id": "box",
+      "type": "rect",
+      "x": 6,
+      "y": 90,
+      "w": 89,
+      "h": 18,
+      "strokeWidth": 0.5,
+      "fill": "white"
+    },
+    {
+      "id": "service",
+      "type": "text",
+      "x": 10,
+      "y": 95,
+      "w": 80,
+      "h": 9,
+      "fontSize": 5,
+      "text": "PACKAGE / 01",
+      "bold": true
+    },
+    {
+      "id": "barcode",
+      "type": "barcode",
+      "x": 8,
+      "y": 115,
+      "w": 85,
+      "h": 26,
+      "text": "123456789012",
+      "showText": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "product",
+  "name": "Product · modern",
+  "widthMm": 101.6,
+  "heightMm": 76.2,
+  "dpi": 203,
+  "objects": [
+    {
+      "id": "tag",
+      "type": "text",
+      "x": 7,
+      "y": 6,
+      "w": 88,
+      "h": 5,
+      "fontSize": 2.8,
+      "text": "FIELD / SUPPLY",
+      "bold": true,
+      "letterSpacing": 1
+    },
+    {
+      "id": "rule",
+      "type": "line",
+      "x": 7,
+      "y": 15,
+      "w": 87,
+      "h": 0.4,
+      "strokeWidth": 0.4
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "x": 7,
+      "y": 20,
+      "w": 85,
+      "h": 19.5,
+      "fontSize": 8,
+      "text": "EVERYDAY\nESSENTIALS",
+      "bold": true
+    },
+    {
+      "id": "desc",
+      "type": "text",
+      "x": 7,
+      "y": 42,
+      "w": 85,
+      "h": 8,
+      "fontSize": 3.2,
+      "text": "Small batch. Made with intention."
+    },
+    {
+      "id": "code",
+      "type": "barcode",
+      "x": 7,
+      "y": 54,
+      "w": 62,
+      "h": 15,
+      "text": "SKU-001234",
+      "showText": true
+    },
+    {
+      "id": "weight",
+      "type": "text",
+      "x": 75,
+      "y": 59,
+      "w": 21,
+      "h": 7,
+      "fontSize": 4,
+      "text": "250 g",
+      "bold": true
+    }
+  ]
+}

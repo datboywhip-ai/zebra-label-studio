@@ -1,0 +1,39 @@
+{
+  "id": "inventory",
+  "name": "Inventory · QR",
+  "widthMm": 76.2,
+  "heightMm": 50.8,
+  "dpi": 203,
+  "objects": [
+    {
+      "id": "title",
+      "type": "text",
+      "x": 4,
+      "y": 4,
+      "w": 68,
+      "h": 6,
+      "fontSize": 4,
+      "text": "ASSET / {{asset}}",
+      "bold": true
+    },
+    {
+      "id": "qr",
+      "type": "qrcode",
+      "x": 4,
+      "y": 15,
+      "w": 29,
+      "h": 29,
+      "text": "{{url}}"
+    },
+    {
+      "id": "info",
+      "type": "text",
+      "x": 37,
+      "y": 17,
+      "w": 35,
+      "h": 25,
+      "fontSize": 3,
+      "text": "PROPERTY OF\n{{company}}\n\nSCAN FOR DETAILS"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "address",
+  "name": "Address · compact",
+  "widthMm": 88.9,
+  "heightMm": 28.6,
+  "dpi": 203,
+  "objects": [
+    {
+      "id": "name",
+      "type": "text",
+      "x": 4,
+      "y": 3,
+      "w": 78,
+      "h": 6,
+      "fontSize": 4,
+      "text": "{{name}}",
+      "bold": true
+    },
+    {
+      "id": "address",
+      "type": "text",
+      "x": 4,
+      "y": 11,
+      "w": 78,
+      "h": 14,
+      "fontSize": 3,
+      "text": "{{address}}\n{{city}}"
+    }
+  ]
+}
